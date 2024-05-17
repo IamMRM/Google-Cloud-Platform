@@ -1,1 +1,3 @@
-# Google-Cloud-Platform
+# Google Cloud Platform
+
+Notes for learning Google Cloud Platform
