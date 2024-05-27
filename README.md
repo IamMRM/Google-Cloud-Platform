@@ -104,6 +104,9 @@ Apache Kafka (originated at LinkedIn. Similar to pub/sub): distributed streaming
 
 Migrating Mapreduce jobs to cloud Data Flow 
 
+
+#####################################################################################################################################################
+
 Chapter 5: PUB/SUB
 Pub/sub is fully supported by cloud dataflow. 
 
