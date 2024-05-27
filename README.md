@@ -71,7 +71,7 @@ Consistency, Availability, Partition tolerance
 Managed instance groups (MIGs) on Compute Engine let you operate applications like databases on multiple identical VMs
 High Availability for Cloud SQL PostgreSQL instances works because: Through synchronous writes to a regional replicated disk, all writes made to the primary instance are also available to the standby instance. This configuration reduces downtime in the event of an instance or zone failure.
 
-######################################################################################################################################################################################################
+#####################################################################################################################################################
 
 CHAPTER 4 
 MAP REDUCE
