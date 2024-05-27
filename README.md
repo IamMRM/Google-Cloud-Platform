@@ -67,5 +67,60 @@ Teradata and Redshift support are useful for migrating customers from amazon
 CAP Theory:
 Consistency, Availability, Partition tolerance 
 
+
 Managed instance groups (MIGs) on Compute Engine let you operate applications like databases on multiple identical VMs
 High Availability for Cloud SQL PostgreSQL instances works because: Through synchronous writes to a regional replicated disk, all writes made to the primary instance are also available to the standby instance. This configuration reduces downtime in the event of an instance or zone failure.
+
+######################################################################################################################################################################################################
+
+CHAPTER 4 
+MAP REDUCE
+For analysis in distributed systems. Map: produces key/value pairs. Key can be input from user and value can be count. Reduce: reduces the keys with same keys
+
+Hadoop core modules:
+1. Hadoop Common: contain all libraries, OS abstractions, startup scripts required for rest of Hadoop
+2. HDFS: Hadoop Distributed File system: Fault-tolerant file system 
+3. Hadoop YARN: Handles resource management, job scheduling, and monitoring for Hadoop jobs
+4. Hadoop Mapreduce
+
+Name node: manages access to files of clients.  file blocks can be replicated for fault tolerance. Client commits request to main node but the actual request can be fulfilled by different data nodes depending on which provides shortest path
+
+Apache Pig: high-level language for large datasets. (Abstraction for Map-reduce). Can also write user-defined functions in python, java, groovy, ruby etc
+Mainly includes:
+- Merging
+- Filtering
+- Transformation of data
+
+Limitation to Map reduce is the linearity. First read data then map then reduce then write to disk.
+Apache Spark: general purpose cluster-computing framework
+Spark needs a cluster manager and a storage system. (See picture)
+
+Apache Kafka (originated at LinkedIn. Similar to pub/sub): distributed streaming platform. High throughput and low latency.
+4 main api in Kafka:
+1. Producer: allows an application to publish stream of records to a kafka topic
+2. Consumer: allows an application to subscribe to 1 or more topics and process records within
+3. Streams: allows an application to act as stream process itself. Useful for transforming data 
+4. Connector: extend Kafka by connecting kafka to external services like relational database
+
+Migrating Mapreduce jobs to cloud Data Flow 
+
+Chapter 5: PUB/SUB
+Pub/sub is fully supported by cloud dataflow. 
+
+Kind of shock absorber for system. Good for exchanging messages and data in our system + can be triggers or event for certain actions and triggering some other actions
+
+Pub/sub follows at least once delivery to every subscription. New subscriptions with same name will have no link to previous subscriptions.
+Seeking can help to retain msgs even after sending acknowledgement. Can also set snapshots to go back in time.
+Messages are not ordered. So can use Cloud file store or Cloud SQL and query this with time stamps for ordering but then this will have latencies
+
+Example
+Data -> pub/sub -> dataflow ne bucket me dal dia. Aur big query se us ko analysis  kr lia SQL se (https://learn.acloud.guru/course/gcp-certified-professional-data-engineer/learn/82956285-8275-1bf2-9428-7679c623aa08/a58da841-3d6a-5cf7-6943-d44f236a319c/watch)
+
+Limitation: it can only send 10MB msg + expired of messages
+Cloud Tasks: must be explicitly invoked by publisher / client as opposed to decentralised pub/sub
+
+By default, a message that cannot be delivered within the retention time of 10 minutes to 7 days is deleted and is no longer accessible.
+A push Subscription endpoint must accept an HTTPS POST with a valid SSL certificate
+All orders can be sent to a single Topic. Pub/Sub guarantees at least once delivery for every Subscription, so every system that needs to be notified will require its own Subscription.
+Access control can be configured at the individual resource level, for example to grant publish-only or consume-only permissions to individual topics or subscriptions.
+All jobs can be sent to a single Topic. The Compute Engine VMs should share a subscription so that they can each take a job from the queue. If they each had their own subscription, they would all be performing the same jobs.
