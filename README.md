@@ -176,3 +176,87 @@ ParDo is a Beam transform for generic parallel processing. The ParDo processing 
 
 
 #####################################################################################################################################################
+Chapter 7: Cloud Dataproc
+
+Managed cluster service in GCP for running Hadoop and Spark jobs. So no hassle of running our own VM and managing storage. 
+Basically, dataproc nodes are preconfigured VMs, built from google maintained image that includes Hadoop, Spark, etc. But can also create our own different image. 
+
+According to the resources we define, Dataproc will create  master node running the YARN resource manager. + HDFS named node and worker nodes running the YARN node manager and HDFS data nodes..  Advantage: 
+The billing. Cluster actions are finished in 90 seconds and pay-per-second with minimum of 1 minute. So we can quickly buildup a cluster + scale up/down. Can also do autoscaling wrt the job. + outputs can be automatically pushed to GCP, BigQuery, Bigtable  Also integrates Stackdriver logging and monitoring: to monitor the health of your Data proc cluster. 
+
+Autoscaling: it checks memory. If available memory is more so need to scale down.
+When use autoscaling, then use cloud storage otherwise have to ave enough primary workers so in scale down HDFS doesn’t get corrupted
+
+Types of clusters:
+1. single node cluster (a single VM that will run master and work the process). Can provide features of dataproc but limited to the capacity of 1 VM
+2. Standard Cluster: (a master VM that runs YARN resource manager, HDFS Name Node. And two or more worker nodes with YARN node manager and HDFS data Node)
+3. High availability cluster: Similar but here we have 3 master VMs 
+
+
+Advanced Dataproc:
+- Custom cluster properties
+- Initialisation script that will be used by all nodes in our cluster. (Used for staging binaries that might be required for the job)
+- Can define custom scala or java dependencies
+
+
+Dataroc runs on Compute Engine VMs so we can use advanced features:
+- Advanced SSDs for local or worker nodes
+- Can attach GPUs
+
+
+
+
+- Great choice for migrating Hadoop and Spark workloads into GCP. Benefits: 
+    - Easy scaling
+    - Using Google cloud storage instead of HDFS
+    - Connecting to other GCP service like BigQuery and BigTable
+- Ephmeral clusters
+* Since preemptibles can be reclaimed at any time, preemptible workers do not store data.
+
+
+#####################################################################################################################################################
+Chapter 8: BigTable
+
+Managed wide column no-SQL database.  key-value pairs where values are split into columns (diff than others with document store style of NoSQL)
+
+Big table is sparse DB which means empty rows do not use any space in DB.
+Each row has a string row_key. That is unique. Each row can have values in cells in form of array of bytes.
+Trick is to save row_keys value so to store mot info in it, so its easier for querying
+
+Column families means to have 2 columns in a single family so easy for querying
+
+Blocks of contiguous rows are shared into tablets. These tablets are what’s managed by nodes in Bigtable cluster not the overall table itself. So workloads can be scaled easily. This tablet data is kept inside Google Colossus (internal global file system. Good for scaling cluster size).
+Splitting, merging and rebalancing tablet happens automatically.
+
+Good for:
+- Marketing, financial and transactional data
+- Time series data and IOT devices
+- Streaming analysis
+- Storage engine for batch map reduce operation and ML apps but not good for all (check alternatives)
+So basically large quantities of small data. 
+
+alternatives:
+SQL + OLTP  = Cloud SQL / Spanner
+Interactive SQL like queries + OLAP + cost efficiency > latency = BigQuery
+Structured NoSQL documents = Firestore (can transform into wide-column format but not hierarchical like firestorm so no cost benefits if less than terabytes)
+Simple Key-value pairs (not that value is different columns) = cloud memory store
+Realtime applications = Firebase 
+
+
+Bigtable Architecture: (see picture)
+Instance: a logical container for big table clusters to share configurations. 
+Two types of instance:
+1. Production
+2. Development
+Can go from dev to prod but not vice versa. 
+Can choose SSD (each node 2.5 TB) or HDD (each node 8 TB). But SSD is better because money can be wasted due to time in processing data.
+Application Profiles: single or multi-cluster routing
+	- if we have single row transactions then it will be hard to keep consistency in multiple clusters so we use single cluster routing
+	- but if single cluster fails then we have to route it ourselves to the other one
+
+
+- BigTable is a 3 dimensional table. As every cell is written with a timestamp. And if cell value is changed then new values can be written without overwriting the original values.
+- Bigtable has operations by row. So in updating 2 rows if 1 doesn’t update the other will still change
+- A tablet cannot be shared by more than 1 node
+* If a subset of queries are performing poorly, there is likely a hot spot being caused by the row key design. Key Visualizer provides a heatmap of the load across your entire table in a way that is difficult to understand using standard debugging techniques. Increasing the size of a cluster is not a long term solution, and adding additional clusters will not affect write throughput.
+
