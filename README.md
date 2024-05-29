@@ -123,7 +123,56 @@ Limitation: it can only send 10MB msg + expired of messages
 Cloud Tasks: must be explicitly invoked by publisher / client as opposed to decentralised pub/sub
 
 By default, a message that cannot be delivered within the retention time of 10 minutes to 7 days is deleted and is no longer accessible.
+
+
 A push Subscription endpoint must accept an HTTPS POST with a valid SSL certificate
 All orders can be sent to a single Topic. Pub/Sub guarantees at least once delivery for every Subscription, so every system that needs to be notified will require its own Subscription.
 Access control can be configured at the individual resource level, for example to grant publish-only or consume-only permissions to individual topics or subscriptions.
 All jobs can be sent to a single Topic. The Compute Engine VMs should share a subscription so that they can each take a job from the queue. If they each had their own subscription, they would all be performing the same jobs.
+
+#####################################################################################################################################################
+
+Chapter 6: Dataflow introduction
+
+Multiple data sources are supported: Google Cloud Storage, Cloud BigTable, Cloud DataStore, Pub/Sub, Big Query
+
+Uses open source Apache Beam
+Real time streaming + batch jobs
+
+Driver program (might write using apache sdk) defines the pipeline. (Written in java or python). Pipeline -> full set of transformations that data undergoes from initial ingestion to final output.
+Driver program is submitted to Pipeline runner (does execution by translating for backend execution framework). Backend system is parallel processing system
+Cloud dataflow does both runner and backend.
+
+PCollections are used in the pipelines and represent data as it is transformed within the pipeline. PCollections are made to manage transfer of data between transforms
+Pipeline can be represented with DAG (directed acyclic graph) So its not possible that output of a transform becomes an input for same transform
+
+ParDo (Parallel do) = generic parallel processing transform.
+
+Characteristics of PCollections:
+1. Can be any datatype but must all be same type
+2. Does not support random access to individual elements within PCollections. Transforms are applied to each element in PCollection individually
+3. Immutable. So can create new but not change
+4. Bounded (finite elements) or unbounded (infinite upper limit)
+5. Timestamp is with each element in PCollection. 
+
+Event time is when a data element is created and processing time is different times at which the element is processed during its transit in the pipeline. 
+Windowing: 
+Basically subdivide elements of a PCollection according to timestamp.
+The reason is to enable grouping/aggregation over unbounded collections
+
+Watermarks: Beam needs to collect all the data based on the event time stamp. So it carries watermark. It is systems notion of when all the data is expected to arrive. Once it moves pass the end of the window, any further data elements that arrive, are considered to be late data. We can treat it differently. 
+
+Triggers -> what tells beam to give out aggregated results.  
+
+For security and permissions:
+Cloud Dataflow service will use Dataflow service account
+Worker instance will use Controller service account. Workers will use Compute Engine service account as the controller service account. (Can also specify user managed service account)
+	Can also run metadata operations for example checking size of object
+
+A sliding time window represents time intervals in the data stream; however, sliding time windows can overlap. This kind of windowing is useful for taking running averages of data. For example, using sliding time windows you could compute a running average of the past 60 seconds’ worth of data, updated every 30 seconds.
+Triggers determine when to emit aggregated results as data arrives. For bounded data, results are emitted after all of the input has been processed. For unbounded data, results are emitted when the watermark passes the end of the window, indicating that the system believes all input data for that window has been processed.
+GroupByKey is a Beam transform for processing collections of key/value pairs. It’s a parallel reduction operation, analogous to the Shuffle phase of a Map/Shuffle/Reduce-style algorithm. CoGroupByKey performs a relational join of two or more key/value PCollections that have the same key type. Combine simply combines elements, and Partition splits elements into smaller collections.
+ParDo is a Beam transform for generic parallel processing. The ParDo processing paradigm is similar to the 'Map' phase of a Map/Shuffle/Reduce-style algorithm: a ParDo transform considers each element in the input PCollection, performs some processing function (your user code) on that element, and emits zero, one, or multiple elements to an output PCollection.
+
+
+#####################################################################################################################################################
