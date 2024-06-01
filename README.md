@@ -82,7 +82,6 @@ Hadoop core modules:
 2. HDFS: Hadoop Distributed File system: Fault-tolerant file system 
 3. Hadoop YARN: Handles resource management, job scheduling, and monitoring for Hadoop jobs
 4. Hadoop Mapreduce
-
 Name node: manages access to files of clients.  file blocks can be replicated for fault tolerance. Client commits request to main node but the actual request can be fulfilled by different data nodes depending on which provides shortest path
 
 Apache Pig: high-level language for large datasets. (Abstraction for Map-reduce). Can also write user-defined functions in python, java, groovy, ruby etc
